@@ -8,7 +8,6 @@ void main()
 	char gameName[40];
 
 	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
-	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
 
 	scanf("%d", &intitialGameSelection);
 
