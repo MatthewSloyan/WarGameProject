@@ -1,6 +1,8 @@
 #include<stdio.h>
 
+//function definition
 int NewGame();
+void displayGameStatus(int scores[], int round, int players);
 
 void main()
 {
@@ -9,7 +11,7 @@ void main()
 	int i, j, k;
 	char gameName[40];
 	int player[10][13] = { {2,3,4,5,6,7,8,9,10,11,12,13,14}, {14,13,12,11,10,9,8,7,6,5,4,3,2}, {2,3,4,5,6,7,8,9,10,11,12,13,14} };
-	int playerScore[10][1];
+	int playerScore[10];
 	int chosenCards[10];
 	int roundCounter = 0;
 	int loadSelection;
@@ -19,6 +21,8 @@ void main()
 	int largestUniqueCard;
 	int largestPlayerNumber;
 	int currentRoundScore = 0;
+	int currentRoundNumber;
+	int firstRound;
 
 	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
 
@@ -32,9 +36,18 @@ void main()
 			printf("Please enter a name for this new game\n"); //enter game name to save to file
 			scanf("%s", gameName);
 
+			//sets the starting number for game round for loop
+			currentRoundNumber = 0;
+			firstRound = 0;
+
 			//calls method to start new game
 			numberOfPlayers = NewGame();
-			
+
+			//initalize player scores to 0
+			for (i = 0; i < numberOfPlayers; i++)
+			{
+				playerScore[i] = 0;
+			}
 		} //if 
 
 		//load game selection
@@ -42,6 +55,7 @@ void main()
 		{
 			//load game
 			numberOfPlayers = 2;
+			currentRoundNumber = 1;
 			printf("Load game\n");
 
 		} //else if
@@ -55,51 +69,63 @@ void main()
 		//code to play game
 		if (intitialGameSelection == 1 || intitialGameSelection == 2)
 		{
-			for (i = 0; i < 13; i++)
+			// for loop to run for 13 rounds or from what round is loaded
+			for (i = currentRoundNumber; i < 13; i++)
 			{
-				printf("\n1 - Complete the next Round\n2 - Save the Game\n3 - Output games Status\n4 - Exit game without saving\n");
-				scanf("%d", &loadSelection);
+				//if rounder number isn't 0 it won't display the selection code
 
-				switch (loadSelection)
+				printf("\nTest round: %d\n", currentRoundNumber);
+
+				if (firstRound != 0)
 				{
-				case 1:
+					printf("\n1 - Complete the next Round\n2 - Save the Game\n3 - Output games Status\n4 - Exit game without saving\n");
+					scanf("%d", &loadSelection);
 
-					break;
-				case 2:
+					switch (loadSelection)
+					{
+					case 1:
 
-					break;
-				case 3:
+						break;
+					case 2:
 
-					break;
-				case 4:
-					printf("\n1 - Open a new Game\n2 - Open a Previously Saved Game\n3 - Exit application\n");
-					scanf("%d", &exitSelection);
+						break;
+					case 3:
+						displayGameStatus(playerScore, i, numberOfPlayers);
+						break;
+					case 4:
+						printf("\n1 - Open a new Game\n2 - Open a Previously Saved Game\n3 - Exit application\n");
+						scanf("%d", &exitSelection);
 
-					if (exitSelection == 1) {
-						printf("Please enter a name for this new game\n"); //enter game name to save to file
-						scanf("%s", gameName);
+						if (exitSelection == 1) {
+							printf("Please enter a name for this new game\n"); //enter game name to save to file
+							scanf("%s", gameName);
 
-						//calls method to start new game
-						numberOfPlayers = NewGame();
-					}
-					else if (exitSelection == 2) {
+							//sets the starting number for game round for loop
+							currentRoundNumber = 0;
 
-					}
-					else if (exitSelection == 3) {
-						//exits and closes application
-						exit();
-					}
-					else {
+							//calls method to start new game
+							numberOfPlayers = NewGame();
+						}
+						else if (exitSelection == 2) {
+
+						}
+						else if (exitSelection == 3) {
+							//exits and closes application
+							exit();
+						}
+						else {
+							printf("Value entered is invald");
+						}
+						break;
+					default:
 						printf("Value entered is invald");
-					}
-					break;
-				default:
-					printf("Value entered is invald");
-					break;
-				} //switch
+						break;
+					} //switch
+				}
 
 				roundCounter++;
-				printf("\nROUND %d\n", roundCounter);
+				firstRound = 1;
+				printf("\nROUND %d\n", i + 1);
 
 				//inner for to control the go for each player per round
 				for (j = 0; j < numberOfPlayers; j++)
@@ -117,7 +143,7 @@ void main()
 					//allows current player to select card from array to use
 					do
 					{
-						printf("Which card would you like to play in round %d\n", roundCounter);
+						printf("Which card would you like to play in round %d\n", i + 1);
 						printf("Numbers from 0 - 13, e.g card 1 = 0/card 3 = 2 or card must have not been played already\n");
 						scanf("%d", &cardSelection);
 					} while (cardSelection < 0 || cardSelection > 13 || player[j][cardSelection] == 0); //checks to make sure player selection is between 0 and 13, also that card has not been played already
@@ -134,7 +160,10 @@ void main()
 				printf("\n");
 
 				//print out all players choices
-				printf("Round %d Selections and scores ============\n", roundCounter);
+				printf("Round %d Selections and scores ============\n", i + 1);
+
+				//set the current round score to 0
+				currentRoundScore = 0;
 
 				for (j = 0; j < numberOfPlayers; j++)
 				{
@@ -152,10 +181,10 @@ void main()
 				}
 
 				//add the score to the player score array
-				playerScore[largestPlayerNumber][0] = currentRoundScore;
+				playerScore[largestPlayerNumber - 1] = currentRoundScore;
 
-				printf("\nThe winner of round %d is Player %d\n", roundCounter, largestPlayerNumber);
-				printf("Player %d's score is now %d\n", largestPlayerNumber, playerScore[largestPlayerNumber][0]);
+				printf("\nThe winner of round %d is Player %d\n", i + 1, largestPlayerNumber);
+				printf("Player %d's score is now %d\n", largestPlayerNumber, playerScore[largestPlayerNumber - 1]);
 
 			} //outer for
 		} //if
@@ -179,4 +208,19 @@ int NewGame()
 	//deals cards to number of players
 
 	return numberOfPlayers;
+}
+
+void displayGameStatus(int scores[], int round, int players)
+{
+	int i;
+
+	printf("\nRound: %d\n", round + 1);
+	printf("\Number of Players: %d\n\n", players);
+
+	printf("Scores ============\n");
+
+	for (i = 0; i < players; i++)
+	{
+		printf("Player %d: %d\n", i + 1, scores[i]);
+	}
 }
