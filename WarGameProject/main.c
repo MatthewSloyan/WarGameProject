@@ -13,6 +13,7 @@ void main()
 	int player[10][13] = { {2,3,4,5,6,7,8,9,10,11,12,13,14}, {14,13,12,11,10,9,8,7,6,5,4,3,2}, {2,3,4,5,6,7,8,9,10,11,12,13,14} };
 	int playerScore[10];
 	int chosenCards[10];
+	int chosenCardsChecker[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int roundCounter = 0;
 	int loadSelection;
 	int exitSelection;
@@ -23,6 +24,7 @@ void main()
 	int currentRoundScore = 0;
 	int currentRoundNumber;
 	int firstRound;
+	int oldValue = 0;
 
 	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
 
@@ -72,10 +74,7 @@ void main()
 			// for loop to run for 13 rounds or from what round is loaded
 			for (i = currentRoundNumber; i < 13; i++)
 			{
-				//if rounder number isn't 0 it won't display the selection code
-
-				printf("\nTest round: %d\n", currentRoundNumber);
-
+				//if round number isn't 0 it won't display the selection code
 				if (firstRound != 0)
 				{
 					printf("\n1 - Complete the next Round\n2 - Save the Game\n3 - Output games Status\n4 - Exit game without saving\n");
@@ -127,6 +126,12 @@ void main()
 				firstRound = 1;
 				printf("\nROUND %d\n", i + 1);
 
+				/*loop to initialize chosen cards array for later comparision*/
+				for (k = 0; k < 10; k++)
+				{
+					chosenCards[k] = 0;
+				}
+
 				//inner for to control the go for each player per round
 				for (j = 0; j < numberOfPlayers; j++)
 				{
@@ -140,13 +145,14 @@ void main()
 					printf("\n");
 					printf("==========================================\n\n");
 
+					
 					//allows current player to select card from array to use
 					do
 					{
 						printf("Which card would you like to play in round %d\n", i + 1);
 						printf("Numbers from 0 - 13, e.g card 1 = 0/card 3 = 2 or card must have not been played already\n");
 						scanf("%d", &cardSelection);
-					} while (cardSelection < 0 || cardSelection > 13 || player[j][cardSelection] == 0); //checks to make sure player selection is between 0 and 13, also that card has not been played already
+					} while (cardSelection < 0 || cardSelection >= 13 || player[j][cardSelection] == 0); //checks to make sure player selection is between 0 and 13, also that card has not been played already
 
 					printf("The card you selected is %d\n", player[j][cardSelection]);
 
@@ -165,26 +171,53 @@ void main()
 				//set the current round score to 0
 				currentRoundScore = 0;
 
+				//loop to print out player chosen cards before they are checked for duplicates, also counts up score
 				for (j = 0; j < numberOfPlayers; j++)
 				{
 					printf("Player %d: ", j + 1);
 					printf("%d \n", chosenCards[j]);
 
-					if (chosenCards[j] > largestCard)
-					{
-						largestCard = chosenCards[j];
-						largestPlayerNumber = j + 1;
-					}
-
 					//count up the total round score
 					currentRoundScore += chosenCards[j];
 				}
 
+				//loop to check for duplicates 
+				for (j = 0; j < numberOfPlayers; j++)
+				{
+					oldValue = chosenCards[j];
+
+					//loop to check if the card is unique
+					for (k = j + 1; k < numberOfPlayers; k++)
+					{
+						if (oldValue == chosenCards[k])
+						{
+							chosenCards[j] = 0;
+							chosenCards[k] = 0;
+						}
+					} 
+				}
+
+				//for to check for largest card that isn't 0
+				for (j = 0; j < numberOfPlayers; j++)
+				{
+					if (chosenCards[j] >= largestCard)
+					{
+						largestCard = chosenCards[j];
+						largestPlayerNumber = j + 1;
+					}
+				}
+
 				//add the score to the player score array
-				playerScore[largestPlayerNumber - 1] = currentRoundScore;
+				playerScore[largestPlayerNumber - 1] += currentRoundScore;
 
 				printf("\nThe winner of round %d is Player %d\n", i + 1, largestPlayerNumber);
 				printf("Player %d's score is now %d\n", largestPlayerNumber, playerScore[largestPlayerNumber - 1]);
+
+				/*for (j = 0; j < numberOfPlayers; j++)
+				{
+					printf("\nTest cards: %d\n", chosenCards[j]);
+					printf("\nTest score: %d\n", playerScore[j]);
+				}*/
 
 			} //outer for
 		} //if
