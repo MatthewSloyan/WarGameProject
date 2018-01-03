@@ -12,6 +12,7 @@ void main()
 	int numberOfPlayers;
 	int i, j, k;
 	char gameName[40];
+	char gameNameAll[40];
 	char loadGameName[40];
 	int player[10][13] = { {2,3,4,5,6,7,8,9,10,11,12,13,14}, {14,13,12,11,10,9,8,7,6,5,4,3,2}, {2,3,4,5,6,7,8,9,10,11,12,13,14} };
 	int playerScore[10];
@@ -46,7 +47,18 @@ void main()
 			strcat(gameName, ".txt");
 
 			//add game name to file with all names
-			
+			filep = fopen("allGameNames.txt", "a");
+
+			if (filep == NULL)
+			{
+				printf("The file could not be opened\n");
+			}
+
+			else
+			{
+				fprintf(filep, "%s\n", gameName);
+				fclose(filep);
+			}
 
 			//sets the starting number for game round for loop
 			currentRoundNumber = 0;
@@ -65,9 +77,38 @@ void main()
 		//load game selection
 		else if (intitialGameSelection == 2) 
 		{
+			printf("Game selection =====================\n");
+
+			//open file with all the possible game selections
+			filep = fopen("allGameNames.txt", "r");
+
+			if (filep == NULL)
+			{
+				printf("The file cannot be opened\n");
+			}
+
+			else
+			{
+				while (!feof(filep))
+				{
+					num_char = fscanf(filep, "%s", gameNameAll);
+					if (num_char > 0)
+					{
+						printf("%s\n", gameNameAll);
+					}
+				}
+				printf("\n");
+				
+			}
+			fclose(filep); //close the file
+
 			//load game
 			printf("Please enter a name of the game you would like to load\n"); 
 			scanf("%s", loadGameName);
+
+			//set name entered to game name for saving
+			strcpy(gameName, loadGameName);
+			//printf("Game Name: %s\n", gameName);
 
 			filep = fopen(loadGameName, "r");
 
@@ -83,6 +124,7 @@ void main()
 					fscanf(filep, "%d", &numberOfPlayers);
 					fscanf(filep, "%d", &currentRoundNumber);
 
+					//scan in the each players cards into array
 					for (i = 0; i < numberOfPlayers; i++) 
 					{
 						for (j = 0; j < 13; j++) 
@@ -91,13 +133,16 @@ void main()
 						}
 					}
 
+					//scan in the each players scores into array
 					for (i = 0; i < numberOfPlayers; i++)
 					{
 						fscanf(filep, "%d ", &playerScore[i]);
 					}
-				}
-			}
 
+					printf("\nGame is loaded\n");
+				} //while
+				fclose(filep); //close the file
+			} //else
 		} //else if
 
 		else 
