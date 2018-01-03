@@ -1,21 +1,36 @@
-#include<stdio.h>
+#include <conio.h>
+#include <stdio.h>
+#include <math.h>
+#include <stdlib.h>
+#include<time.h>
 
 //function definition
 int NewGame();
 void displayGameStatus(int scores[], int round, int players);
+void loadGame();
+void shuffleDeck();
+
+//Global variable for file loading function
+FILE* filep;
+
+char gameName[40];
+char loadGameName[40];
+char gameNameAll[40];
+
+int player[10][13] = { 0 }; //player cards and number
+int cards[52] = { 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, };
+int playerScore[10];
+int numberOfPlayers;
+int currentRoundNumber;
+int firstRound;
+int i, j, k;
+int num_char;
+int ifNewGame = 0;
 
 void main()
 {
-	FILE* filep;
-	
+	//local variables
 	int intitialGameSelection;
-	int numberOfPlayers;
-	int i, j, k;
-	char gameName[40];
-	char gameNameAll[40];
-	char loadGameName[40];
-	int player[10][13] = { {2,3,4,5,6,7,8,9,10,11,12,13,14}, {14,13,12,11,10,9,8,7,6,5,4,3,2}, {2,3,4,5,6,7,8,9,10,11,12,13,14} };
-	int playerScore[10];
 	int chosenCards[10];
 	int chosenCardsChecker[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int roundCounter = 0;
@@ -26,10 +41,7 @@ void main()
 	int largestUniqueCard;
 	int largestPlayerNumber;
 	int currentRoundScore = 0;
-	int currentRoundNumber;
-	int firstRound;
 	int oldValue = 0;
-	int num_char;
 	int input;
 
 	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
@@ -41,109 +53,15 @@ void main()
 		// start new game selection
 		if (intitialGameSelection == 1) 
 		{
-			printf("Please enter a name for this new game\n"); //enter game name to save to file
-			scanf("%s", gameName);
-
-			strcat(gameName, ".txt");
-
-			//add game name to file with all names
-			filep = fopen("allGameNames.txt", "a");
-
-			if (filep == NULL)
-			{
-				printf("The file could not be opened\n");
-			}
-
-			else
-			{
-				fprintf(filep, "%s\n", gameName);
-				fclose(filep);
-			}
-
-			//sets the starting number for game round for loop
-			currentRoundNumber = 0;
-			firstRound = 0;
-
 			//calls method to start new game
 			numberOfPlayers = NewGame();
-
-			//initalize player scores to 0
-			for (i = 0; i < numberOfPlayers; i++)
-			{
-				playerScore[i] = 0;
-			}
 		} //if 
 
 		//load game selection
-		else if (intitialGameSelection == 2) 
+		else if (intitialGameSelection == 2)
 		{
-			printf("Game selection =====================\n");
-
-			//open file with all the possible game selections
-			filep = fopen("allGameNames.txt", "r");
-
-			if (filep == NULL)
-			{
-				printf("The file cannot be opened\n");
-			}
-
-			else
-			{
-				while (!feof(filep))
-				{
-					num_char = fscanf(filep, "%s", gameNameAll);
-					if (num_char > 0)
-					{
-						printf("%s\n", gameNameAll);
-					}
-				}
-				printf("\n");
-				
-			}
-			fclose(filep); //close the file
-
-			//load game
-			printf("Please enter a name of the game you would like to load\n"); 
-			scanf("%s", loadGameName);
-
-			//set name entered to game name for saving
-			strcpy(gameName, loadGameName);
-			//printf("Game Name: %s\n", gameName);
-
-			filep = fopen(loadGameName, "r");
-
-			if (filep == NULL)
-			{
-				printf("The file cannot be opened\n");
-			}
-
-			else
-			{
-				while (!feof(filep))
-				{
-					fscanf(filep, "%d", &numberOfPlayers);
-					fscanf(filep, "%d", &currentRoundNumber);
-
-					//scan in the each players cards into array
-					for (i = 0; i < numberOfPlayers; i++) 
-					{
-						for (j = 0; j < 13; j++) 
-						{
-							fscanf(filep, "%d", &player[i][j]);
-						}
-					}
-
-					//scan in the each players scores into array
-					for (i = 0; i < numberOfPlayers; i++)
-					{
-						fscanf(filep, "%d ", &playerScore[i]);
-					}
-
-					printf("\nGame is loaded\n");
-				} //while
-				fclose(filep); //close the file
-			} //else
-		} //else if
+			loadGame(); //calls the load game function
+		}
 
 		else 
 		{
@@ -182,7 +100,7 @@ void main()
 						else
 						{
 							fprintf(filep, "%d\n", numberOfPlayers);
-							fprintf(filep, "%d\n", roundCounter);
+							fprintf(filep, "%d\n", i);
 
 							//loop to print player cards to file
 							for (j = 0; j < numberOfPlayers; j++)
@@ -202,6 +120,25 @@ void main()
 
 							fclose(filep); //close the file
 						}
+
+						//if it's a new game it will add the name to all games file
+						if (ifNewGame == 1)
+						{
+							//add game name to file with all names
+							filep = fopen("allGameNames.txt", "a");
+
+							if (filep == NULL)
+							{
+								printf("The file could not be opened\n");
+							}
+
+							else
+							{
+								fprintf(filep, "%s\n", gameName);
+								fclose(filep);
+							}
+						}
+
 						break;
 					case 3:
 						displayGameStatus(playerScore, i, numberOfPlayers);
@@ -211,21 +148,17 @@ void main()
 						scanf("%d", &exitSelection);
 
 						if (exitSelection == 1) {
-							printf("Please enter a name for this new game\n"); //enter game name to save to file
-							scanf("%s", gameName);
-
-							//sets the starting number for game round for loop
-							currentRoundNumber = 0;
-
 							//calls method to start new game
 							numberOfPlayers = NewGame();
 						}
 						else if (exitSelection == 2) {
+							loadGame(); //calls the load game function
 
+							currentRoundNumber - 2;
 						}
 						else if (exitSelection == 3) {
 							//exits and closes application
-							exit();
+							//exit();
 						}
 						else {
 							printf("Value entered is invald");
@@ -347,15 +280,60 @@ int NewGame()
 {
 	int numberOfPlayers;
 
+	printf("Please enter a name for this new game\n"); //enter game name to save to file
+	scanf("%s", gameName);
+
+	strcat(gameName, ".txt");
+
 	do
 	{
 		printf("How many players would you like? The number of players must be between 2 and 10\n");
 		scanf("%d", &numberOfPlayers);
 	} while (numberOfPlayers < 2 || numberOfPlayers > 10); //checks to make sure player count is between 2 and 10
 
-	//deals cards to number of players
+	//initalize player scores to 0
+	for (i = 0; i < numberOfPlayers; i++)
+	{
+		playerScore[i] = 0;
+	}
+
+	//sets the starting number for game round for loop
+	currentRoundNumber = 0;
+	firstRound = 0;
+	ifNewGame = 1;
+
+	//==========================================
+
+	//deal cards to number of players
+	srand(time(NULL)); /* seeds with the time of day */
+	
+	for (i = 0; i < numberOfPlayers; i++)
+	{
+		shuffleDeck();
+		//printf("\nHello\n");
+		for (j = 0; j < 13; j++)
+		{
+			player[i][j] = cards[j];
+		}
+	}
 
 	return numberOfPlayers;
+}
+
+void shuffleDeck()
+{
+	int randomNum;
+	int oldCardValue;
+	int i;
+
+	// loop to run through card array shuffling it radomly
+	for (i = 0; i < 53 - 1; i++) 
+	{
+		randomNum = rand() % 52 + 1; //gets a random array position e.g 52, 51, 50
+		oldCardValue = cards[randomNum]; // saves the value in random number position
+		cards[randomNum] = cards[i]; // card array gets updated with loop position
+		cards[i] = oldCardValue; //card array gets updated with old card value E.g 12
+	}
 }
 
 void displayGameStatus(int scores[], int round, int players)
@@ -371,4 +349,76 @@ void displayGameStatus(int scores[], int round, int players)
 	{
 		printf("Player %d: %d\n", i + 1, scores[i]);
 	}
+}
+
+void loadGame()
+{
+	printf("Game selection =====================\n");
+
+	//open file with all the possible game selections
+	filep = fopen("allGameNames.txt", "r");
+
+	if (filep == NULL)
+	{
+		printf("The file cannot be opened\n");
+	}
+
+	else
+	{
+		while (!feof(filep))
+		{
+			num_char = fscanf(filep, "%s", gameNameAll);
+			if (num_char > 0)
+			{
+				printf("%s\n", gameNameAll);
+			}
+		}
+		printf("\n");
+
+	}
+	fclose(filep); //close the file
+	
+	//load game
+	printf("Please enter a name of the game you would like to load\n");
+	scanf("%s", loadGameName);
+
+	//set name entered to game name for saving
+	strcpy(gameName, loadGameName);
+	//printf("Game Name: %s\n", gameName);
+
+	firstRound = 1;
+
+	filep = fopen(loadGameName, "r");
+
+	if (filep == NULL)
+	{
+		printf("The file cannot be opened\n");
+	}
+
+	else
+	{
+		while (!feof(filep))
+		{
+			fscanf(filep, "%d", &numberOfPlayers);
+			fscanf(filep, "%d", &currentRoundNumber);
+
+			//scan in the each players cards into array
+			for (i = 0; i < numberOfPlayers; i++)
+			{
+				for (j = 0; j < 13; j++)
+				{
+					fscanf(filep, "%d", &player[i][j]);
+				}
+			}
+
+			//scan in the each players scores into array
+			for (i = 0; i < numberOfPlayers; i++)
+			{
+				fscanf(filep, "%d ", &playerScore[i]);
+			}
+
+			printf("\nGame %s is loaded\n", gameName);
+		} //while
+		fclose(filep); //close the file
+	} //else
 }
