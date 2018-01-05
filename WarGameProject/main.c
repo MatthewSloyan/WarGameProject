@@ -34,15 +34,16 @@ void main()
 	//local variables
 	int intitialGameSelection;
 	int chosenCards[10];
-	int chosenCardsChecker[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int roundCounter = 0;
 	int cardSelection;
 	int largestCard = 0;
-	int largestUniqueCard;
 	int largestPlayerNumber;
+	int largestOverallScore = 0;
+	int winningPlayer;
 	int currentRoundScore = 0;
+	int nextRoundChecker;
+	int nextRoundScore = 0;
 	int oldValue = 0;
-	int input;
 
 	//allow the user to select wheter to start a new game, load game or exit the application (intitial read)
 	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
@@ -113,9 +114,6 @@ void main()
 				//print out all players choices
 				printf("Round %d Selections and scores ============\n", i + 1);
 
-				//set the current round score to 0
-				//currentRoundScore = 0;
-
 				// Round winners and scores =====================================================
 
 				for (j = 0; j < numberOfPlayers; j++) //loop to print out player chosen cards before they are checked for duplicates, also counts up score
@@ -128,42 +126,86 @@ void main()
 
 				for (j = 0; j < numberOfPlayers; j++) //loop to check for duplicates 
 				{
-					oldValue = chosenCards[j];
+					oldValue = chosenCards[j]; //sets the oldvalue to the iteration value E.g 
 
-					for (k = j + 1; k < numberOfPlayers; k++) //loop to check if the card is unique
+					for (k = 0; k < numberOfPlayers; k++) //loop to check if the card is unique
 					{
-						if (oldValue == chosenCards[k])
+						if (k == j) //if k == j then value will be equal as it's the same value in array, so it skips over it
+						{
+							continue;
+						}
+
+						if (oldValue == chosenCards[k]) //if the card value equals the oldvalue then it and the old value is changed to 0, removing the duplicates.
 						{
 							chosenCards[j] = 0;
 							chosenCards[k] = 0;
 						}
-					} 
+					}
 				} //outer for
+
+				nextRoundChecker = 0; //variable to determine if all values are equal
 
 				for (j = 0; j < numberOfPlayers; j++) //for to check for largest card that isn't 0
 				{
-					if (chosenCards[j] > largestCard)
+					if (chosenCards[j] >= largestCard)
 					{
 						largestCard = chosenCards[j];
 						largestPlayerNumber = j + 1;
 					}
+
+					//check if chosen card is greater than 0, which would mean that all the values aren't equal
+					if (chosenCards[j] > 0)
+					{
+						nextRoundChecker = 1;
+					}
 				}
 
-				playerScore[largestPlayerNumber - 1] += currentRoundScore; //add the score to the player score array
-
-				printf("\nThe winner of round %d is Player %d\n", i + 1, largestPlayerNumber);
-				printf("Player %d's score is now %d\n", largestPlayerNumber, playerScore[largestPlayerNumber - 1]);
-
-				/*for (j = 0; j < numberOfPlayers; j++)
+				//if it still equals to 0 then all values must be equal, so the score is added to the next round
+				if (nextRoundChecker == 0)
 				{
-					printf("\nTest cards: %d\n", chosenCards[j]);
-					printf("\nTest score: %d\n", playerScore[j]);
-				}*/	
+					nextRoundScore = currentRoundScore;
+					printf("\nThe Round is a draw, %d points will carry over to the next round\n", nextRoundScore);
+				}
+				else
+				{
+					//if game was a draw in the last round, the score is added if the round is won.
+					if (nextRoundScore > 0)
+					{
+						currentRoundScore += nextRoundScore;
+					}
+
+					//add the score to the player score array
+					playerScore[largestPlayerNumber - 1] += currentRoundScore;
+
+					printf("\nThe winner of round %d is Player %d\n", i + 1, largestPlayerNumber);
+					printf("Player %d's score is now %d\n", largestPlayerNumber, playerScore[largestPlayerNumber - 1]);
+				}
 
 				//call the function to allow players to select a number of options, e.g play the next round, view the game status, exit without saving etc.
-				gameSelectionOptions(); 
+				if(i < 12)
+				{
+					gameSelectionOptions();
+				}
+				
+				currentRoundScore = 0; //set the current round score back to 0
 
 			} //for
+
+			// End of game ==================================
+
+			for (i = 0; i < numberOfPlayers; i++) //loop that runs trough scores array to check for the winnner
+			{
+				if (playerScore[i] > largestOverallScore)
+				{
+					largestOverallScore = playerScore[i];
+					winningPlayer = i + 1;
+				}
+			}
+
+			printf("\nThe winner of the War is Player %d with a total score of %d\n", winningPlayer, largestOverallScore);
+
+			printf("\n\nThe War has ended!\n\n\n");
+
 		} //if 
 
 		//subsequent read
@@ -325,7 +367,7 @@ void displayGameStatus(int scores[], int round, int players)
 	int i;
 
 	printf("\nRound: %d\n", round + 1);
-	printf("\Number of Players: %d\n\n", players);
+	printf("Number of Players: %d\n\n", players);
 
 	printf("Scores ============\n");
 
