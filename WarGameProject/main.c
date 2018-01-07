@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include<time.h>
 
+// Matthew Sloyan - G00348036
+// https://github.com/MatthewSloyan/WarGameProject
+
 //function definition
 void NewGame();
 void displayGameStatus(int scores[], int round, int players);
@@ -49,14 +52,17 @@ void main()
 	printf("Please start new game(1), load existing game(2) or exit game(0)\n");
 	scanf("%d", &intitialGameSelection);
 
-	while (intitialGameSelection != 0) //while loop until 0 is encountered
+	//while loop until 0 is encountered
+	while (intitialGameSelection != 0) 
 	{
-		if (intitialGameSelection == 1) // start new game selection
+		// start new game selection
+		if (intitialGameSelection == 1) 
 		{
 			NewGame(); //calls method to start new game
 		}
-
-		else if (intitialGameSelection == 2) //load game selection
+		
+		//load game selection
+		else if (intitialGameSelection == 2) 
 		{
 			loadGame(); //calls the load game function
 		}
@@ -70,43 +76,53 @@ void main()
 
 		if (intitialGameSelection == 1 || intitialGameSelection == 2)
 		{
-			for (i = currentRoundNumber; i < 13; ++i) // for loop to run for 13 rounds or from what round is loaded
+			// for loop to run for 13 rounds or from what round is loaded
+			for (i = currentRoundNumber; i < 13; ++i) 
 			{
 				roundCounter++;
 				printf("\nROUND %d\n", i + 1);
 
-				for (j = 0; j < 10; j++) //loop to initialize chosen cards array for later comparision
+				//loop to initialize chosen cards array for later comparision
+				for (j = 0; j < 10; j++) 
 				{
 					chosenCards[j] = 0;
 				}
 
-				for (j = 0; j < numberOfPlayers; j++) //inner for to control the go for each player per round
+				//inner for to control the go for each player per round
+				for (j = 0; j < numberOfPlayers; j++) 
 				{
 					//display the current players cards
-					printf("\nPlayer %d: Your cards =====================\n", j + 1);
+					printf("\nPlayer %d: ", j + 1);
+					printf("\n=========================================================");
+					printf("\nCards: ");
 
 					for (k = 0; k < 13; k++)
 					{
-						printf("%d  ", player[j][k]);
+						printf("%-4d", player[j][k]);
 					}
 					printf("\n");
-					printf("==========================================\n\n");
+					printf("=========================================================\n");
+					printf("Input: 1   2   3   4   5   6   7   8   9   10  11  12  13\n");
+					printf("=========================================================\n\n");
 
 					//allows current player to select card from array to use
 					do
 					{
 						printf("Which card would you like to play in round %d\n", i + 1);
-						printf("Numbers from 0 - 13, e.g card 1 = 0/card 3 = 2 or card must have not been played already\n");
+						printf("The number below your card is the value you input to select the card, however the card must have not been played already\n");
 						scanf("%d", &cardSelection);
 
 						//checks to make sure player selection is between 0 and 13, also that card has not been played already
-					} while (cardSelection < 0 || cardSelection >= 13 || player[j][cardSelection] == 0);
+					} while (cardSelection < 0 || cardSelection > 13 || player[j][cardSelection - 1] == 0);
 
-					printf("The card you selected is %d\n", player[j][cardSelection]);
+					//print the selected card
+					printf("The card you selected is %d\n", player[j][cardSelection - 1]);
 
-					chosenCards[j] = player[j][cardSelection]; //save chosen card to scores array
+					//save chosen card to scores array
+					chosenCards[j] = player[j][cardSelection - 1];
 
-					player[j][cardSelection] = 0; //card is now used, so make 0
+					//card is now used, so make 0
+					player[j][cardSelection - 1] = 0; 
 				} //for
 
 				printf("\n");
@@ -116,7 +132,8 @@ void main()
 
 				// Round winners and scores =====================================================
 
-				for (j = 0; j < numberOfPlayers; j++) //loop to print out player chosen cards before they are checked for duplicates, also counts up score
+				//loop to print out player chosen cards before they are checked for duplicates, also counts up score
+				for (j = 0; j < numberOfPlayers; j++)
 				{
 					printf("Player %d: ", j + 1);
 					printf("%d \n", chosenCards[j]);
@@ -124,18 +141,23 @@ void main()
 					currentRoundScore += chosenCards[j]; //count up the total round score
 				}
 
-				for (j = 0; j < numberOfPlayers; j++) //loop to check for duplicates 
+				//loop to check for duplicates 
+				for (j = 0; j < numberOfPlayers; j++) 
 				{
-					oldValue = chosenCards[j]; //sets the oldvalue to the iteration value E.g 
+					//sets the oldvalue to the iteration value E.g 
+					oldValue = chosenCards[j]; 
 
-					for (k = 0; k < numberOfPlayers; k++) //loop to check if the card is unique
+					//loop to check if the card is unique
+					for (k = 0; k < numberOfPlayers; k++) 
 					{
-						if (k == j) //if k == j then value will be equal as it's the same value in array, so it skips over it
+						//if k == j then value will be equal as it's the same value in array, so it skips over it
+						if (k == j) 
 						{
 							continue;
 						}
 
-						if (oldValue == chosenCards[k]) //if the card value equals the oldvalue then it and the old value is changed to 0, removing the duplicates.
+						//if the card value equals the oldvalue then it and the old value is changed to 0, removing the duplicates.
+						if (oldValue == chosenCards[k]) 
 						{
 							chosenCards[j] = 0;
 							chosenCards[k] = 0;
@@ -143,9 +165,11 @@ void main()
 					}
 				} //outer for
 
-				nextRoundChecker = 0; //variable to determine if all values are equal
+				//variable to determine if all values are equal
+				nextRoundChecker = 0; 
 
-				for (j = 0; j < numberOfPlayers; j++) //for to check for largest card that isn't 0
+				//for to check for largest card that isn't 0
+				for (j = 0; j < numberOfPlayers; j++) 
 				{
 					if (chosenCards[j] >= largestCard)
 					{
@@ -193,7 +217,8 @@ void main()
 
 			// End of game ==================================
 
-			for (i = 0; i < numberOfPlayers; i++) //loop that runs trough scores array to check for the winnner
+			//loop that runs trough scores array to check for the winnner
+			for (i = 0; i < numberOfPlayers; i++) 
 			{
 				if (playerScore[i] > largestOverallScore)
 				{
@@ -223,10 +248,12 @@ void NewGame()
 	int suit = 0;
 	int randomCardPos;
 
-	printf("Please enter a name for this new game\n"); //enter game name to save to file
+	//enter game name to save to file
+	printf("Please enter a name for this new game, please don't include file extension\n");
 	scanf("%s", gameName);
 
-	strcat(gameName, ".txt"); //adds the file extension to name
+	//adds the file extension to name
+	strcat(gameName, ".txt");
 
 	do
 	{
@@ -252,13 +279,15 @@ void NewGame()
 	{
 		shuffleDeck(); //calls the shuffle deck function
 
+		//for loop that takes a random card from each suit in order 1-4, till it fills the 13 cards. 
+		//E.g first iteration, it takes a random diamond, then a random heart and so on.
 		for (j = 0; j < 13; j++)
 		{
-			randomCardPos = rand() % 13; //gets a random array position between 0-12=
+			randomCardPos = rand() % 13; //gets a random array position between 0-12
 			player[i][j] = cards[suit][randomCardPos]; //deals random card to player of suit one E.g Spades
 
 			suit++; //increments suit to move to suit two E.g Hearts
-			if (suit == 3) // once the number of suits reaches it's end (all four suits) it starts over for the last card.
+			if (suit == 3) // once the number of suits reaches it's end (all four suits) it starts over
 			{
 				suit = 0;
 			}
@@ -298,13 +327,14 @@ void loadGame()
 
 	if (filep == NULL)
 	{
-		printf("The file cannot be opened\n");
+		printf("The file cannot be opened\n\n");
 	}
 
 	else
 	{
 		while (!feof(filep))
 		{
+			//if the file contains values it will print out the game names
 			num_char = fscanf(filep, "%s", gameNameAll);
 			if (num_char > 0)
 			{
@@ -312,17 +342,17 @@ void loadGame()
 			}
 		}
 		printf("\n");
-
+		fclose(filep); //close the file
 	}
-	fclose(filep); //close the file
 	
 	//load game
-	printf("Please enter a name of the game you would like to load\n");
+	printf("Please enter a name of the game you would like to load, please included .txt extension\n");
 	scanf("%s", loadGameName);
 
 	//set name entered to game name for saving
 	strcpy(gameName, loadGameName);
 
+	//open the that the player has entered if found
 	filep = fopen(loadGameName, "r");
 
 	if (filep == NULL)
@@ -334,6 +364,7 @@ void loadGame()
 	{
 		while (!feof(filep))
 		{
+			//read in the number of players and the current round
 			fscanf(filep, "%d", &numberOfPlayers);
 			fscanf(filep, "%d", &currentRoundNumber);
 
@@ -371,6 +402,7 @@ void displayGameStatus(int scores[], int round, int players)
 
 	printf("Scores ============\n");
 
+	//print out the scores of the game
 	for (i = 0; i < players; i++)
 	{
 		printf("Player %d: %d\n", i + 1, scores[i]);
@@ -391,19 +423,22 @@ void gameSelectionOptions()
 		break;
 	case 2:
 		//Save the game selection
-		filep = fopen(gameName, "w"); //open file to write to using name input by user
+		//open file to write to using name input by user
+		filep = fopen(gameName, "w"); 
 
-		if (filep == NULL) //if file not found output error.
+		//if file not found output error.
+		if (filep == NULL) 
 		{
 			printf("The file could not be opened\n");
 		}
 
-		else //print game information to file
+		else //print game information to player
 		{
 			fprintf(filep, "%d\n", numberOfPlayers);
-			fprintf(filep, "%d\n", i);
+			fprintf(filep, "%d\n", i + 1); //prints the round to file
 
-			for (j = 0; j < numberOfPlayers; j++) //loop to print player cards to file
+			//loop to print player cards to file
+			for (j = 0; j < numberOfPlayers; j++)
 			{
 				for (k = 0; k < 13; k++)
 				{
@@ -412,7 +447,8 @@ void gameSelectionOptions()
 				fprintf(filep, "\n");
 			}
 
-			for (j = 0; j < numberOfPlayers; j++) //for to write player scores to file
+			//for to write player scores to file
+			for (j = 0; j < numberOfPlayers; j++) 
 			{
 				fprintf(filep, "%d ", playerScore[j]);
 			}
